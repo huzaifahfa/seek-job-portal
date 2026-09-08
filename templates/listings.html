@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Admin Dashboard</title>
+</head>
+<body>
+<div class="container-sm mt-4">
+    <a href="/" class="btn btn-outline-primary mb-3">← Back to Home</a>
+    {% if role == 'admin' %}
+    <div class="card card-body bg-light mb-4 text-center">
+        <form action="/admin_nav" method="POST" class="form-inline justify-content-center">
+            <label for="admin_route" class="mr-2"><strong>Admin Menu:</strong></label>
+            <select name="admin_route" id="admin_route" class="form-control mr-2">
+                <option value="admin">Create a New Job</option>
+                <option value="manage" selected>Manage Existing Jobs</option>
+            </select>
+            <input type="submit" value="Go!" class="btn btn-primary">
+        </form>
+        <form action="/admin/manage" method="GET" class="form-inline mb-3">
+            <label class="mr-2" for="status_filter"><strong>Filter by Status:</strong></label>
+            <select name="status_filter" id="status_filter" class="form-control form-control-sm mr-2">
+                <option value="all" {% if request.args.get('status_filter') == 'all' %}selected{% endif %}>All Jobs</option>
+                <option value="1" {% if request.args.get('status_filter') == '1' %}selected{% endif %}>Open</option>
+                <option value="2" {% if request.args.get('status_filter') == '2' %}selected{% endif %}>Closed</option>
+            </select>
+            <button type="submit" class="btn btn-secondary btn-sm">Filter</button>
+        </form>
+    </div>
+    {% else %}
+        <h3>Open Opportunities</h3>
+    {% endif %}
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Current Job Listings</h5>
+        </div>
+        <div class="card-body">
+
+            <!-- Jobs Table -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Title</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for job in jobs %}
+                        <tr>
+                            <td>{{ job['title'] }}</td>
+                            <td>{{ job['location'] }}</td>
+                            <td>
+                                {% if job['status'] == 1 %}
+                                    <span class="badge badge-success">Open</span>
+                                {% elif job['status'] == 2 %}
+                                    <span class="badge badge-secondary">Closed</span>
+                                {% else %}
+                                    <span class="badge badge-light">Unknown</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if role == 'admin' %}
+                                    <a href="/job/{{ job['jid'] }}" class="btn btn-info btn-sm">View & Manage Details</a>
+                                {% else %}
+                                    <a href="/candidate/job/{{ job['jid'] }}" class="btn btn-primary btn-sm">View Details & Apply</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No jobs found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+</body>
+</html>
